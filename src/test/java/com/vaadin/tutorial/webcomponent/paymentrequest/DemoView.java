@@ -1,5 +1,11 @@
 package com.vaadin.tutorial.webcomponent.paymentrequest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -13,23 +19,36 @@ import elemental.json.JsonObject;
 @Route("")
 public class DemoView extends Div {
 
+    private JsonArray createArray(List<String> array) {
+        int i=0;
+        JsonArray items = Json.createArray();
+        for(String item: array) {
+            items.set(i++, item);
+        }
+
+        return items;
+    }
+
+    private JsonObject createObject(Map<String, List<String>> map) {
+        JsonObject items = Json.createObject();
+        for(HashMap.Entry<String, List<String>> entry : map.entrySet()) {
+            items.put(entry.getKey(), createArray(entry.getValue()));
+        }
+
+        return items;
+    }
+
     public DemoView() {
-        JsonArray supportedNetwork = Json.createArray();
-        supportedNetwork.set(0, "amex");
-        supportedNetwork.set(1, "mastercard");
-        supportedNetwork.set(2, "visa");
 
-        JsonArray supportedTypes = Json.createArray();
-        supportedTypes.set(0, "debit");
-        supportedTypes.set(1, "credit");
-
-        JsonObject paymentMethodData = Json.createObject();
-        paymentMethodData.put("supportedNetwork", supportedNetwork);
-        paymentMethodData.put("supportedTypes", supportedTypes);
+        Map<String, List<String>> paymentMethodData = new HashMap<>();
+        paymentMethodData.put("supportedNetworks",
+            Arrays.asList("amex", "mastercard", "visa"));
+        paymentMethodData.put("supportedTypes",
+            Arrays.asList("debit", "credit"));
 
         PaymentMethod paymentMethod = new PaymentMethod();
         paymentMethod.addSupported("basic-card");
-        paymentMethod.setData(paymentMethodData);
+        paymentMethod.setData(createObject(paymentMethodData));
         paymentMethod.getElement().setAttribute("slot", "method");
 
         PaymentItem paymentItem = new PaymentItem();
